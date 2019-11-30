@@ -16,6 +16,7 @@ from tqdm import tqdm
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('-i','--input', type=str, help='input folder path')
+    parser.add_argument('-o','--output', type=str, default='out.mp4', help='output file name')
     parser.add_argument('-f','--framerate', type=int, default=46000, help='sound frame rate')
     parser.add_argument('-s','--speed', type=float, default=1.0, help='sound speed')
     args = parser.parse_args()
@@ -94,7 +95,7 @@ def join_SilentVideo_Sound(silent_video, sound, fname):
     cmd = ['ffmpeg', '-y', '-i', silent_video, '-i', sound, '-loglevel', 'quiet', './video/{:03}.mp4'.format(fname)]
     c = subprocess.call(cmd)
 
-def join_Video():
+def join_Video(args):
     video_path_fname = './video/video_path.txt'
     video_list = sorted(glob.glob(os.path.join('./video', '*.mp4')))
     video_path = ''
@@ -102,7 +103,7 @@ def join_Video():
         video_path += 'file ' + os.path.split(line)[-1] + '\n'
     with open(video_path_fname, mode='w') as f:
         f.write(video_path)
-    cmd = ['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', video_path_fname, '-loglevel', 'quiet', '-c', 'copy', 'out.mp4']
+    cmd = ['ffmpeg', '-y', '-f', 'concat', '-safe', '0', '-i', video_path_fname, '-loglevel', 'quiet', '-c', 'copy', args.output]
     c = subprocess.call(cmd)
 
 
@@ -139,7 +140,7 @@ if __name__ == '__main__':
         # make video
         join_SilentVideo_Sound(silent_video_fname, sound_fname, i)
 
-    join_Video()
+    join_Video(args)
 
     # delete tmp folders
     shutil.rmtree("sound")
